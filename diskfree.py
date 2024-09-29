@@ -14,13 +14,13 @@ INTERVAL = 60
 class taskTray:
     def __init__(self, drive):
         # 監視対象ドライブ
-        self.drive = f'{drive}:'.upper()
+        self.drive = f'{drive[0]}:'.upper()
 
         # スレッド実行モード
         self.running = False
 
         menu = Menu(
-            MenuItem('Exit', self.stopApp),
+            MenuItem(f'{self.drive} Exit', self.stopApp),
         )
         self.app = Icon(name='PYTHON.win32.diskfree', menu=menu)
         self.pieDiskUsage()
@@ -83,7 +83,7 @@ class taskTray:
 
 if __name__ == '__main__':
     drive = 'C'
-    if len(sys.argv) == 2 and len(sys.argv[1]) == 1 and sys.argv[1].isalpha():
-        drive = sys.argv[1]
+    if len(sys.argv) == 2 and sys.argv[1][0].isalpha():
+        drive = sys.argv[1][0]
 
     taskTray(drive).runApp()
