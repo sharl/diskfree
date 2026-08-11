@@ -1,4 +1,7 @@
 darkdetect
+pillow
+pip
 psutil
 pystray
 schedule
+six
