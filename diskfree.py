@@ -1,7 +1,8 @@
 # -*- mode: python; coding: utf-8 -*-
+import ctypes
 import sys
-import time
 import threading
+import time
 
 from PIL import Image, ImageDraw
 from psutil import disk_usage
