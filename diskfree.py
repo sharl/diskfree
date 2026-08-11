@@ -2,7 +2,6 @@
 import ctypes
 import sys
 import threading
-import time
 
 from PIL import Image, ImageDraw
 from psutil import disk_usage
@@ -21,11 +20,10 @@ ctypes.windll['uxtheme.dll'][135](PreferredAppMode[dd.theme()])
 
 class taskTray:
     def __init__(self, drive):
+        self.stop_event = threading.Event()
+
         # 監視対象ドライブ
         self.drive = f'{drive[0]}:'.upper()
-
-        # スレッド実行モード
-        self.running = False
 
         menu = Menu(
             MenuItem(f'{self.drive} Exit', self.stopApp),
@@ -67,24 +65,24 @@ class taskTray:
 
         self.app.title = f'{self.drive} {rate * 100:.2f}%'
         self.app.icon = img
-        self.app.update_menu()
 
     def runSchedule(self):
         schedule.every(INTERVAL).seconds.do(self.pieDiskUsage)
 
-        while self.running:
+        while not self.stop_event.is_set():
             schedule.run_pending()
-            time.sleep(1)
+            if self.stop_event.wait(1):
+                break
+        schedule.clear()
 
     def stopApp(self):
-        self.running = False
+        self.stop_event.set()
         self.app.stop()
 
     def runApp(self):
-        self.running = True
+        self.stop_event.clear()
 
-        task_thread = threading.Thread(target=self.runSchedule)
-        task_thread.start()
+        threading.Thread(target=self.runSchedule).start()
 
         self.app.run()
 
