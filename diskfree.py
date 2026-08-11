@@ -3,12 +3,19 @@ import sys
 import time
 import threading
 
-import schedule
-from pystray import Icon, Menu, MenuItem
-from psutil import disk_usage
 from PIL import Image, ImageDraw
+from psutil import disk_usage
+from pystray import Icon, Menu, MenuItem
+import darkdetect as dd
+import schedule
 
-INTERVAL = 60
+INTERVAL = 5
+PreferredAppMode = {
+    'Light': 0,
+    'Dark': 1,
+}
+# https://github.com/moses-palmer/pystray/issues/130
+ctypes.windll['uxtheme.dll'][135](PreferredAppMode[dd.theme()])
 
 
 class taskTray:

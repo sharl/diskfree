@@ -1,3 +1,4 @@
-schedule
-pystray
+darkdetect
 psutil
+pystray
+schedule
