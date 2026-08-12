@@ -2,12 +2,12 @@
 import ctypes
 import sys
 import threading
+import time
 
 from PIL import Image, ImageDraw
 from psutil import disk_usage
 from pystray import Icon, Menu, MenuItem
 import darkdetect as dd
-import schedule
 
 INTERVAL = 5
 PreferredAppMode = {
@@ -29,51 +29,49 @@ class taskTray:
             MenuItem(f'{self.drive} Exit', self.stopApp),
         )
         self.app = Icon(name='PYTHON.win32.diskfree', menu=menu)
-        self.pieDiskUsage()
 
     def pieDiskUsage(self, canvas=800, offs=10, hemp=100):
-        disk = disk_usage(self.drive)
-        rate = disk.used / disk.total
-
-        start = 270 - 360 * rate
-        end = 270
-
-        xy = [
-            (offs, hemp),
-            (canvas - offs, canvas - hemp),
-        ]
-
-        img = Image.new('RGBA', (canvas, canvas))
-        draw = ImageDraw.Draw(img)
-
-        # 使用領域
-        draw.pieslice(
-            xy,
-            start, end,
-            fill='Blue',
-            outline='Red',
-            width=10,
-        )
-        # 空き領域
-        draw.pieslice(
-            xy,
-            end, start,
-            fill='Magenta',
-            outline='Red',
-            width=10,
-        )
-
-        self.app.title = f'{self.drive} {rate * 100:.2f}%'
-        self.app.icon = img
-
-    def runSchedule(self):
-        schedule.every(INTERVAL).seconds.do(self.pieDiskUsage)
-
         while not self.stop_event.is_set():
-            schedule.run_pending()
-            if self.stop_event.wait(1):
+            begin = time.time()
+
+            disk = disk_usage(self.drive)
+            rate = disk.used / disk.total
+
+            start = 270 - 360 * rate
+            end = 270
+
+            xy = [
+                (offs, hemp),
+                (canvas - offs, canvas - hemp),
+            ]
+
+            img = Image.new('RGBA', (canvas, canvas))
+            draw = ImageDraw.Draw(img)
+
+            # 使用領域
+            draw.pieslice(
+                xy,
+                start, end,
+                fill='Blue',
+                outline='Red',
+                width=10,
+            )
+            # 空き領域
+            draw.pieslice(
+                xy,
+                end, start,
+                fill='Magenta',
+                outline='Red',
+                width=10,
+            )
+
+            self.app.title = f'{self.drive} {rate * 100:.2f}%'
+            self.app.icon = img
+
+            elapsed = time.time() - begin
+            sleep_time = max(0, INTERVAL - elapsed)
+            if self.stop_event.wait(sleep_time):
                 break
-        schedule.clear()
 
     def stopApp(self):
         self.stop_event.set()
@@ -82,7 +80,7 @@ class taskTray:
     def runApp(self):
         self.stop_event.clear()
 
-        threading.Thread(target=self.runSchedule).start()
+        threading.Thread(target=self.pieDiskUsage, daemon=True).start()
 
         self.app.run()
 
