@@ -19,6 +19,22 @@ PreferredAppMode = {
 }
 # https://github.com/moses-palmer/pystray/issues/130
 ctypes.windll['uxtheme.dll'][135](PreferredAppMode[dd.theme()])
+THEMES = {
+    'Default': {
+        'color': 'White',
+        'used': 'Blue',
+        'free': 'Magenta',
+        'outline': 'Red',
+        'begin': 0,
+    },
+    'Pacman': {
+        'color': 'Yellow',
+        'used': 'Yellow',
+        'free': 'Black',
+        'outline': None,
+        'begin': 180 + 45,
+    },
+}
 
 
 class Drive:
@@ -46,7 +62,8 @@ class DiskFree:
     def __init__(self):
         self.stop_event = threading.Event()
 
-        self.drives = DrivesInfo()
+        self.theme = list(THEMES)[0]
+        self.drives = DrivesInfo(THEMES[self.theme])
 
         # update enables
         self.drives.update()
@@ -56,17 +73,28 @@ class DiskFree:
         self.drive_threads = {}
 
         image = Image.open(resource_path('Assets/sample.ico'))
+        theme_menu = []
+        for theme in THEMES:
+            theme_menu.append(
+                MenuItem(theme, self.set_theme, checked=lambda x: str(x) == self.theme),
+            )
         enable_menu = []
         for drive in self.enable_drives:
             enable_menu.append(
                 MenuItem(drive, self.toggle_enables, checked=lambda item: self.enable_drives[str(item)])
             )
         main_menu = Menu(
+            MenuItem('Theme', Menu(*theme_menu)),
+            Menu.SEPARATOR,
             MenuItem('Monitor Drives', Menu(*enable_menu)),
             Menu.SEPARATOR,
             MenuItem('Exit', self.stopApp),
         )
         self.app = Icon(name=TITLE, title=TITLE, icon=image, menu=main_menu)
+
+    def set_theme(self, _, item):
+        self.theme = str(item)
+        self.drives.set_theme(THEMES[self.theme])
 
     def toggle_enables(self, _, item):
         drive = str(item)

@@ -1,17 +1,23 @@
 # -*- coding: utf-8 -*-
+# from PIL import Image, ImageDraw, ImageFont
 from PIL import Image, ImageDraw
 import psutil
 
 
 class DrivesInfo:
-    def __init__(self):
+    def __init__(self, theme):
         self.info = {}
         self.pie = {}
+        self.theme = theme
 
         self.drive_letters = []
         for d in range(26):
             drive = f'{chr(65 + d)}:'
             self.drive_letters.append(drive)
+        # self.font = ImageFont.truetype('arial.ttf', 144)
+
+    def set_theme(self, theme):
+        self.theme = theme
 
     def pieUsage(self, canvas=800, offs=10, hemp=100):
         for drive in self.info:
@@ -24,8 +30,9 @@ class DrivesInfo:
             # import random
             # rate = random.random()
 
-            start = 270 - 360 * rate
-            end = 270
+            begin = self.theme['begin']
+            start = 270 + begin - 360 * rate
+            end = 270 + begin
 
             xy = [
                 (offs, hemp),
@@ -39,18 +46,20 @@ class DrivesInfo:
             draw.pieslice(
                 xy,
                 start, end,
-                fill='Blue',
-                outline='Red',
+                fill=self.theme['used'],
+                outline=self.theme['outline'],
                 width=10,
             )
             # 空き領域
             draw.pieslice(
                 xy,
                 end, start,
-                fill='Magenta',
-                outline='Red',
+                fill=self.theme['free'],
+                outline=self.theme['outline'],
                 width=10,
             )
+            # draw.text((10, 10), drive, fill=self.theme['color'], font=self.font)
+
             if drive in self.pie:
                 del self.pie[drive]
             self.pie[drive] = img
