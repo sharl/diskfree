@@ -11,6 +11,7 @@ from DrivesInfo import DrivesInfo
 from utils import resource_path
 
 
+TITLE = 'diskfree'
 INTERVAL = 5
 PreferredAppMode = {
     'Light': 0,
@@ -65,7 +66,7 @@ class DiskFree:
             Menu.SEPARATOR,
             MenuItem('Exit', self.stopApp),
         )
-        self.app = Icon(name='test', title='test', icon=image, menu=main_menu)
+        self.app = Icon(name=TITLE, title=TITLE, icon=image, menu=main_menu)
 
     def toggle_enables(self, _, item):
         drive = str(item)
