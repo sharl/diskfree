@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from dataclasses import asdict, dataclass
 import ctypes
 import threading
 import time
@@ -8,6 +9,7 @@ from pystray import Icon, Menu, MenuItem
 import darkdetect as dd
 
 from DrivesInfo import DrivesInfo
+from config import Config
 from utils import resource_path
 
 
@@ -37,15 +39,17 @@ THEMES = {
 }
 
 
+@dataclass
+class Setting:
+    theme: str
+    enables: dict
+
+
 class Drive:
     def __init__(self, drive):
         self.drive = drive
 
         image = Image.open(resource_path('Assets/sample.ico'))
-        # main_menu = Menu(
-        #     MenuItem('Exit', self.stopApp),
-        # )
-        # self.app = Icon(name=self.drive, title=self.drive, icon=image, menu=main_menu)
         self.app = Icon(name=self.drive, title=self.drive, icon=image)
         # print('init', self.drive)
 
@@ -55,12 +59,12 @@ class Drive:
 
     def stopApp(self):
         self.app.stop()
-        # print('stop', self.drive)
 
 
 class DiskFree:
     def __init__(self):
         self.stop_event = threading.Event()
+        self.config = Config(TITLE)
 
         self.theme = list(THEMES)[0]
         self.drives = DrivesInfo(THEMES[self.theme])
@@ -98,14 +102,32 @@ class DiskFree:
             MenuItem('Exit', self.stopApp),
         )
         self.app = Icon(name=TITLE, title=TITLE, icon=image, menu=main_menu)
+        self.load_config()
+
+    def load_config(self):
+        try:
+            setting = Setting(**self.config.load())
+            self.theme = setting.theme
+            self.enable_drives = setting.enables
+        except TypeError:
+            pass
+
+    def save_config(self):
+        setting = Setting(
+            theme=self.theme,
+            enables=self.enable_drives,
+        )
+        self.config.save(asdict(setting))
 
     def set_theme(self, _, item):
         self.theme = str(item)
         self.drives.set_theme(THEMES[self.theme])
+        self.save_config()
 
     def toggle_enables(self, _, item):
         drive = str(item)
         self.enable_drives[drive] = not self.enable_drives[drive]
+        self.save_config()
 
     def is_visible(self, item):
         drive = str(item)
@@ -153,6 +175,7 @@ class DiskFree:
             self.drive_threads[drive].stopApp()
 
         self.app.stop()
+        self.save_config()
 
     def runApp(self):
         self.stop_event.clear()
