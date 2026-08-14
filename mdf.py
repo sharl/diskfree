@@ -68,7 +68,7 @@ class DiskFree:
         # update enables
         self.drives.update()
         self.enable_drives = {
-            drive: self.drives.info[drive] is not None for drive in self.drives.drive_letters
+            drive: True for drive in self.drives.drive_letters
         }
         self.drive_threads = {}
 
@@ -79,7 +79,7 @@ class DiskFree:
                 MenuItem(theme, self.set_theme, checked=lambda x: str(x) == self.theme),
             )
         enable_menu = []
-        for drive in self.enable_drives:
+        for drive in self.drives.drive_letters:
             enable_menu.append(
                 MenuItem(
                     drive,
@@ -105,9 +105,7 @@ class DiskFree:
 
     def toggle_enables(self, _, item):
         drive = str(item)
-        if self.drives.info[drive]:
-            self.enable_drives[drive] = not self.enable_drives[drive]
-        # print(f'set {drive} to {self.enable_drives[drive]}')
+        self.enable_drives[drive] = not self.enable_drives[drive]
 
     def is_visible(self, item):
         drive = str(item)
@@ -132,7 +130,6 @@ class DiskFree:
                     else:
                         if drive in self.drive_threads:
                             self.drive_threads[drive].stopApp()
-                            # print('disable', drive)
 
             # clean up
             thread_names = [th.name for th in threading.enumerate()]
@@ -141,6 +138,8 @@ class DiskFree:
                     del self.drive_threads[drive]
 
             # print('dirve_threads', self.drive_threads)
+
+            self.app.update_menu()
 
             elapsed = time.time() - begin
             sleep_time = max(0, INTERVAL - elapsed)
