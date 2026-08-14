@@ -81,9 +81,16 @@ class DiskFree:
         enable_menu = []
         for drive in self.enable_drives:
             enable_menu.append(
-                MenuItem(drive, self.toggle_enables, checked=lambda item: self.enable_drives[str(item)])
+                MenuItem(
+                    drive,
+                    self.toggle_enables,
+                    checked=lambda item: self.enable_drives[str(item)],
+                    visible=lambda item: self.is_visible(str(item)),
+                )
             )
         main_menu = Menu(
+            MenuItem(TITLE, lambda: False),
+            Menu.SEPARATOR,
             MenuItem('Theme', Menu(*theme_menu)),
             Menu.SEPARATOR,
             MenuItem('Monitor Drives', Menu(*enable_menu)),
@@ -101,6 +108,10 @@ class DiskFree:
         if self.drives.info[drive]:
             self.enable_drives[drive] = not self.enable_drives[drive]
         # print(f'set {drive} to {self.enable_drives[drive]}')
+
+    def is_visible(self, item):
+        drive = str(item)
+        return drive in self.drives.info and self.drives.info[drive]
 
     def monitor(self):
         while not self.stop_event.is_set():
