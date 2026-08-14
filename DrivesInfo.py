@@ -65,7 +65,6 @@ class DrivesInfo:
             self.pie[drive] = img
 
     def update(self):
-        self.info.clear()
         for drive in self.drive_letters:
             try:
                 i = psutil.disk_usage(drive)
