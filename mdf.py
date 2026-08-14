@@ -119,7 +119,7 @@ class DiskFree:
 
             self.drives.update()
 
-            for drive in self.drives.info:
+            for drive in self.drives.drive_letters:
                 i = self.drives.info[drive]
                 if i:
                     if self.enable_drives[drive]:
