@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-# from PIL import Image, ImageDraw, ImageFont
 from PIL import Image, ImageDraw
 import psutil
 
@@ -14,7 +13,6 @@ class DrivesInfo:
         for d in range(26):
             drive = f'{chr(65 + d)}:'
             self.drive_letters.append(drive)
-        # self.font = ImageFont.truetype('arial.ttf', 144)
 
     def set_theme(self, theme):
         self.theme = theme
@@ -48,7 +46,7 @@ class DrivesInfo:
                 start, end,
                 fill=self.theme['used'],
                 outline=self.theme['outline'],
-                width=10,
+                width=1,
             )
             # 空き領域
             draw.pieslice(
@@ -56,9 +54,8 @@ class DrivesInfo:
                 end, start,
                 fill=self.theme['free'],
                 outline=self.theme['outline'],
-                width=10,
+                width=1,
             )
-            # draw.text((10, 10), drive, fill=self.theme['color'], font=self.font)
 
             if drive in self.pie:
                 del self.pie[drive]
@@ -71,4 +68,4 @@ class DrivesInfo:
             except Exception:
                 i = None
             self.info[drive] = i
-        self.pieUsage()
+        self.pieUsage(canvas=64, offs=1, hemp=4)
