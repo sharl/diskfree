@@ -152,6 +152,9 @@ class DiskFree:
                     else:
                         if drive in self.drive_threads:
                             self.drive_threads[drive].stopApp()
+                else:
+                    if drive in self.drive_threads:
+                        self.drive_threads[drive].stopApp()
 
             # clean up
             thread_names = [th.name for th in threading.enumerate()]
