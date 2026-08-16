@@ -49,7 +49,7 @@ class Drive:
     def __init__(self, drive):
         self.drive = drive
 
-        image = Image.open(resource_path('Assets/sample.ico'))
+        image = Image.new('RGB', (1, 1))
         self.app = Icon(name=self.drive, title=self.drive, icon=image)
         # print('init', self.drive)
 
