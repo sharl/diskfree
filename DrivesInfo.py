@@ -8,6 +8,7 @@ class DrivesInfo:
         self.info = {}
         self.pie = {}
         self.theme = theme
+        self.rate_cache: dict[str, str] = {}
 
         self.drive_letters = []
         for d in range(26):
@@ -27,6 +28,13 @@ class DrivesInfo:
             # DEBUG
             # import random
             # rate = random.random()
+            f_rate = f'{rate:.2f}'
+            if drive in self.rate_cache and self.rate_cache[drive] == f_rate:
+                continue
+
+            # draw start
+            # print(f'update {drive}')
+            self.rate_cache[drive] = f_rate
 
             begin = self.theme['begin']
             start = 270 + begin - 360 * rate
