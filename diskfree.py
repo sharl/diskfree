@@ -45,6 +45,16 @@ class Setting:
     enables: dict
 
 
+def getVersion():
+    v = 'test'
+    try:
+        with open(resource_path('Assets/version.txt')) as fd:
+            v = fd.read().strip().removeprefix('v')
+    except Exception:
+        pass
+    return v
+
+
 class Drive:
     def __init__(self, drive):
         self.drive = drive
@@ -93,7 +103,7 @@ class DiskFree:
                 )
             )
         main_menu = Menu(
-            MenuItem(TITLE, lambda: False),
+            MenuItem(f'{TITLE} {getVersion()}', lambda: False),
             Menu.SEPARATOR,
             MenuItem('Theme', Menu(*theme_menu)),
             Menu.SEPARATOR,
